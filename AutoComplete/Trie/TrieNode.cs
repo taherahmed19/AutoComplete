@@ -26,28 +26,48 @@ namespace AutoComplete.Trie
 
             for (int i = 0; i < word.Length; i++)
             {
-
-                int index = word[i];
-
-                if ((temp.Children.Select(item => item.Value.ToString().Equals(word[i].ToString())).ToList().FirstOrDefault() == false))
+                if ((temp.Children.Where(item => item.Value.ToString() == (word[i].ToString())).ToList().Count == 0))
                 {
-
-                    temp.Children.Add(new TrieNode(word[i], this));
-                    Console.WriteLine("Added under root " + temp.Children.ElementAt(temp.Children.Count - 1).Value);
+                    temp.Children.Add(new TrieNode(word[i], temp));
+                    Console.WriteLine("Added under root " + temp.Children.ElementAt(temp.Children.Count - 1).Value + " Parent " + temp.Children[temp.Children.Count - 1].Parent.Value
+                    + " End of word " + temp.Children[temp.Children.Count - 1].IsEndOfWord);
                 }
+                
+              
+                    temp = temp.Children[temp.Children.Count - 1];
 
-                temp = temp.Children[temp.Children.Count - 1];
 
                 if (i == word.Length - 1)
                 {
                     temp.IsEndOfWord = true;
                 }
+
+         
             }
         }
 
         public bool IsLeaf()
         {
             return this.Children.Count == 0;
+        }
+
+        public bool CheckIfExists(TrieNode root, string prefix, int index, List<TrieNode> visitedNodes)
+        {
+            List<TrieNode> childs = root.Children;
+
+            foreach (var child in childs)
+            {
+
+                if ((index >=0  && index < prefix.Length) && child.Value == prefix[index])
+                {
+                    Console.WriteLine(child.Value + " - " + prefix[index]);
+                    index++;
+                    visitedNodes.Add(child);
+                    CheckIfExists(child, prefix, index, visitedNodes);
+                }
+            }
+
+            return index > 0;
         }
     }
 
