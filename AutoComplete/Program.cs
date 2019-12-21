@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace AutoComplete
 {
@@ -9,24 +10,64 @@ namespace AutoComplete
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            TrieNode root = new TrieNode(' ', null);
+
+            Console.WriteLine("Running...");
             AutoComplete.Crawler.Crawler crawler = new AutoComplete.Crawler.Crawler();
-          //  crawler.CrawlLinks("https://stackoverflow.com/questions/8497673/html-agility-pack-parsing-an-href-tag?noredirect=1&lq=1");
+       //     crawler.CrawlLinks("https://stackoverflow.com/questions/8497673/html-agility-pack-parsing-an-href-tag?noredirect=1&lq=1", root);
             crawler.GetDomainName("https://stackoverflow.com/questions/8497673/html-agility-pack-parsing-an-href-tag?noredirect=1&lq=1");
             crawler.PrintVisitedLinks();
-            Console.WriteLine(crawler.Counter);
 
-            List<string> test = new List<string>();
+              root.AddWord(root, "secon");
+              root.AddWord(root, "second person");
+              root.AddWord(root, "word");
+              root.AddWord(root, "Organize and share knowledge across your company");
+              root.AddWord(root, "developer job");
+              root.AddWord(root, "Log In Stack Overflow");
+              root.AddWord(root, "Developer jobs");
+              root.AddWord(root, "HTML Agility pack: parsing an href tag");
+              root.AddWord(root, "Convert uppercase characters in strings to lowercase");
+              root.AddWord(root, "Convert uppercase ");
+              root.AddWord(root, FilterRegex("we people who code"));
 
-            TrieNode root = new TrieNode(' ', null);
-            root.AddWord(root, "secon");
-            root.AddWord(root, "second person");
-            root.AddWord(root, "word");
-            root.AddWord(root, "words");
 
             //DFS(root);
 
-            PrintAutoSuggestions(root, "s");
+            string input = "";
+            do
+            {
+                input = Console.ReadLine();
+                Console.WriteLine("Printing Suggestions");
+                PrintAutoSuggestions(root, input);
+            } while (input != "exit");
+
+        }
+
+        public static string FilterRegex(string filter)
+        {
+            var regex = @"[a-zA-Z]+";
+            IEnumerable<string> words = Regex.Matches(filter, regex).Cast<Match>().Select(m => m.Value);
+            string str = "";
+            foreach(var word in words)
+            {
+                str += word + " ";
+            }
+            Console.WriteLine(str.ToLower() + "...");
+
+            return str;
+        }
+
+        public static void DFS(TrieNode root)
+        {
+            List<TrieNode> childs = root.Children;
+            foreach (var child in childs)
+            {
+                Console.WriteLine(child.Value);
+                if (child.Children.Count != 0)
+                {
+                    DFS(child);
+                }
+            }
         }
 
         public static void DFS(TrieNode root, List<TrieNode> visitedNodes)
@@ -39,18 +80,11 @@ namespace AutoComplete
                 {
                     DFS(child, visitedNodes);
                 }
-
             }
         }
 
-        //if exists get the last node the prefix exists at 
-        //then carry out another search to the get the autocomplete values
-
         public static int PrintAutoSuggestions(TrieNode root, string prefix)
         {
-            int length = prefix.Length;
-            TrieNode temp = root;
-
             List<TrieNode> visitedNodes = new List<TrieNode>();
             List<string> suggestions = new List<string>();
 
@@ -62,10 +96,7 @@ namespace AutoComplete
             }
             else
             {
-                Console.WriteLine("lastNode " + visitedNodes[visitedNodes.Count - 1].Value);
-
                 DFS(visitedNodes[visitedNodes.Count - 1], visitedNodes);
-                Console.WriteLine();
 
                 string str = "";
                 foreach (var visited in visitedNodes)
@@ -82,9 +113,7 @@ namespace AutoComplete
                     Console.WriteLine(suggest);
                 }
             }
-
             return 1;
-
         }
     }
 }

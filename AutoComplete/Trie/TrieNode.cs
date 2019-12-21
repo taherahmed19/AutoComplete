@@ -22,27 +22,26 @@ namespace AutoComplete.Trie
 
         public void AddWord(TrieNode root, string word)
         {
-            TrieNode temp = root;
+            word = word.ToLower();
 
+            TrieNode temp = root;
             for (int i = 0; i < word.Length; i++)
             {
-                if ((temp.Children.Where(item => item.Value.ToString() == (word[i].ToString())).ToList().Count == 0))
+                if ((temp.Children.Where(item => item.Value.ToString().Equals(word[i].ToString(), StringComparison.OrdinalIgnoreCase)).ToList().Count == 0))
                 {
                     temp.Children.Add(new TrieNode(word[i], temp));
-                    Console.WriteLine("Added under root " + temp.Children.ElementAt(temp.Children.Count - 1).Value + " Parent " + temp.Children[temp.Children.Count - 1].Parent.Value
-                    + " End of word " + temp.Children[temp.Children.Count - 1].IsEndOfWord);
-                }
-                
-              
                     temp = temp.Children[temp.Children.Count - 1];
+                }
+                else
+                {
+                    temp = temp.Children.Where(item => item.Value == word[i]).FirstOrDefault();
+                }
 
 
                 if (i == word.Length - 1)
                 {
                     temp.IsEndOfWord = true;
                 }
-
-         
             }
         }
 
@@ -57,10 +56,8 @@ namespace AutoComplete.Trie
 
             foreach (var child in childs)
             {
-
-                if ((index >=0  && index < prefix.Length) && child.Value == prefix[index])
+                if ((index >= 0 && index < prefix.Length) && child.Value.ToString().Equals(prefix[index].ToString(), StringComparison.OrdinalIgnoreCase))
                 {
-                    Console.WriteLine(child.Value + " - " + prefix[index]);
                     index++;
                     visitedNodes.Add(child);
                     CheckIfExists(child, prefix, index, visitedNodes);
