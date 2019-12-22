@@ -44,11 +44,7 @@ namespace AutoComplete.Crawler
             VisitedLinks.Add(url);
 
             IEnumerable<string> titleTokens = Tokenisation(col);
-            if (!col.Contains("Attract"))
-            {
-                if (!Titles.Contains(col)) Titles.Add(col);
-                root.AddWord(root, col);
-            }
+            if (!Titles.Contains(col)) Titles.Add(col); root.AddWord(root, col);
             //add to tree
 
             foreach (var link in links)

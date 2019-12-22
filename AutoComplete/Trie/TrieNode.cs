@@ -50,21 +50,31 @@ namespace AutoComplete.Trie
             return this.Children.Count == 0;
         }
 
+        public static bool found = false;
+
         public bool CheckIfExists(TrieNode root, string prefix, int index, List<TrieNode> visitedNodes)
         {
             List<TrieNode> childs = root.Children;
-
             foreach (var child in childs)
             {
-                if ((index >= 0 && index < prefix.Length) && child.Value.ToString().Equals(prefix[index].ToString(), StringComparison.OrdinalIgnoreCase))
+
+                if ((index >= 0 && index < prefix.Length) && child.Value.ToString().Equals(prefix[index].ToString(), StringComparison.OrdinalIgnoreCase) && !visitedNodes.Contains(child))
                 {
-                    index++;
-                    visitedNodes.Add(child);
-                    CheckIfExists(child, prefix, index, visitedNodes);
+                    if (!visitedNodes.Contains(child) && !found)
+                    {
+                        index++;
+                        visitedNodes.Add(child);
+                        Console.WriteLine("Last Node " + visitedNodes[visitedNodes.Count - 1].Value);
+                        if (index == prefix.Length)
+                        {
+                            found = true;
+                        }
+                        CheckIfExists(child, prefix, index, visitedNodes);
+                    }
                 }
             }
 
-            return index > 0;
+            return visitedNodes[visitedNodes.Count - 1].Value.ToString() == prefix[prefix.Length - 1].ToString();
         }
     }
 

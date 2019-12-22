@@ -25,10 +25,12 @@ namespace AutoComplete
               root.AddWord(root, "developer job");
               root.AddWord(root, "Log In Stack Overflow");
               root.AddWord(root, "Developer jobs");
+              root.AddWord(root, "Where");
+              root.AddWord(root, "who");
               root.AddWord(root, "HTML Agility pack: parsing an href tag");
               root.AddWord(root, "Convert uppercase characters in strings to lowercase");
               root.AddWord(root, "Convert uppercase ");
-              root.AddWord(root, FilterRegex("we people who code"));
+              //root.AddWord(root, FilterRegex("we people who code"));
 
 
             //DFS(root);
@@ -70,50 +72,99 @@ namespace AutoComplete
             }
         }
 
-        public static void DFS(TrieNode root, List<TrieNode> visitedNodes)
+        static string str = "";
+        static List<string> active = new List<string>();
+
+        public static string DFS(TrieNode root, List<TrieNode> visitedNodes, List<string> suggestions, string prefix)
         {
+            active.Add(root.Value.ToString());
+          
             List<TrieNode> childs = root.Children;
+
+            if (root.IsEndOfWord && !suggestions.Contains(str))
+            {
+                Console.WriteLine("Adding " + str);
+                suggestions.Add(prefix);
+            }
             foreach (var child in childs)
             {
-                visitedNodes.Add(child);
+                str += child.Value;
+                if (child.IsEndOfWord && !suggestions.Contains(str))
+                {
+                    Console.WriteLine("Adding " + str);
+                    suggestions.Add(str);
+                }
+
                 if (child.Children.Count != 0)
                 {
-                    DFS(child, visitedNodes);
+                    DFS(child, visitedNodes, suggestions, prefix);
                 }
             }
+            active.Remove(root.Value.ToString());
+            str = "";
+            foreach (var act in active)
+            {
+                str += act;
+            }
+
+            return str;
+        }
+
+        public static string DFS2(TrieNode root, List<TrieNode> visitedNodes, List<string> suggestions, string prefix)
+        {
+
+            List<TrieNode> childs = root.Children;
+
+            if (root.IsEndOfWord && !suggestions.Contains(prefix))
+            {
+                Console.WriteLine("Adding " + str);
+                suggestions.Add(prefix);
+            }
+            foreach (var child in childs)
+            {
+                str += child.Value;
+                if (child.IsEndOfWord && !suggestions.Contains(str))
+                {
+                    Console.WriteLine("Adding " + str);
+                    suggestions.Add(str);
+                    str = "";
+                }
+
+                if (child.Children.Count != 0)
+                {
+                    DFS2(child, visitedNodes, suggestions, prefix);
+                }
+                Console.WriteLine("Should be w or h " + root.Value);
+            }
+       
+            return str;
         }
 
         public static int PrintAutoSuggestions(TrieNode root, string prefix)
         {
             List<TrieNode> visitedNodes = new List<TrieNode>();
             List<string> suggestions = new List<string>();
+            TrieNode.found = false;
 
             bool exists = root.CheckIfExists(root, prefix, 0, visitedNodes);
-
             if (!exists)
             {
                 return 0;
             }
             else
             {
-                DFS(visitedNodes[visitedNodes.Count - 1], visitedNodes);
+                Console.WriteLine("Carry out search from node = " + visitedNodes[visitedNodes.Count - 1].Value);
+                str = prefix;
+                int initial = visitedNodes.Count - 1;
+                string word = DFS(visitedNodes[0], visitedNodes, suggestions, prefix);
 
-                string str = "";
-                foreach (var visited in visitedNodes)
-                {
-                    str += visited.Value;
-                    if (visited.IsEndOfWord)
-                    {
-                        suggestions.Add(str);
-                    }
-                }
-
-                foreach(var suggest in suggestions)
+                foreach (var suggest in suggestions)
                 {
                     Console.WriteLine(suggest);
                 }
             }
             return 1;
         }
+
     }
 }
