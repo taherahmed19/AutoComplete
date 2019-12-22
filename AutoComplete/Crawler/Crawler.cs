@@ -38,14 +38,12 @@ namespace AutoComplete.Crawler
             {
                 col = HtmlDoc.DocumentNode.SelectSingleNode("//h1").InnerText;
             }
-
             var links = HtmlDoc.DocumentNode.Descendants("a").Select(item => item.GetAttributeValue("href", "")).ToList();
             
             VisitedLinks.Add(url);
 
             IEnumerable<string> titleTokens = Tokenisation(col);
             if (!Titles.Contains(col)) Titles.Add(col); root.AddWord(root, col);
-            //add to tree
 
             foreach (var link in links)
             {

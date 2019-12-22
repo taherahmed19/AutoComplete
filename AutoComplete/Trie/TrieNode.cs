@@ -64,7 +64,6 @@ namespace AutoComplete.Trie
                     {
                         index++;
                         visitedNodes.Add(child);
-                        Console.WriteLine("Last Node " + visitedNodes[visitedNodes.Count - 1].Value);
                         if (index == prefix.Length)
                         {
                             found = true;
