@@ -8,16 +8,17 @@ namespace AutoComplete.Trie
     {
 
         public string str { get; set; }
+        public List<string> suggestions { get; set; }
 
         public Trie()
         {
             this.str = "";
+            this.suggestions = new List<string>();
         }
 
         public int PrintAutoSuggestions(TrieNode root, string prefix)
         {
             List<TrieNode> visitedNodes = new List<TrieNode>();
-            List<string> suggestions = new List<string>();
             TrieNode.found = false;
 
             bool exists = root.CheckIfExists(root, prefix, 0, visitedNodes);
@@ -27,7 +28,6 @@ namespace AutoComplete.Trie
             }
             else
             {
-                //Console.WriteLine("Carry out search from node = " + visitedNodes[visitedNodes.Count - 1].Value);
                 str = "";
                 FindWords(visitedNodes[visitedNodes.Count - 1], suggestions, prefix);
 

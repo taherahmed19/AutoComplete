@@ -1,4 +1,6 @@
-﻿using AutoComplete.Trie;
+﻿using AutoComplete.Crawler;
+using AutoComplete.Summarization;
+using AutoComplete.Trie;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,14 +14,15 @@ namespace AutoComplete
         static void Main(string[] args)
         {
             TrieNode root = new TrieNode(' ', null);
+            Options options = new Options();
+            AutoComplete.Crawler.Crawler crawler = new AutoComplete.Crawler.Crawler();
 
             Console.WriteLine("Running...");
-            AutoComplete.Crawler.Crawler crawler = new AutoComplete.Crawler.Crawler();
-            crawler.CrawlLinks("https://stackoverflow.com/questions/8497673/html-agility-pack-parsing-an-href-tag?noredirect=1&lq=1", root);
+           // crawler.CrawlLinks("https://stackoverflow.com/questions/8497673/html-agility-pack-parsing-an-href-tag?noredirect=1&lq=1", root);
             crawler.GetDomainName("https://stackoverflow.com/questions/8497673/html-agility-pack-parsing-an-href-tag?noredirect=1&lq=1");
             crawler.PrintVisitedLinks();
 
-           /* root.AddWord(root, "secon");
+            root.AddWord(root, "secon");
             root.AddWord(root, "second person");
             root.AddWord(root, "word");
             root.AddWord(root, "Organize and share knowledge across your company");
@@ -34,9 +37,26 @@ namespace AutoComplete
             root.AddWord(root, "I am counting my calories, yet I really want dessert.");
             root.AddWord(root, "It was getting dark, and we weren’t there yet.");
             root.AddWord(root, "The shooter says goodbye to his love.");
-            root.AddWord(root, "I hear that Nancy is very pretty.");*/
-            //root.AddWord(root, FilterRegex("we people who code"));
+            root.AddWord(root, "I hear that Nancy is very pretty.");
 
+            Paragraph _Paragraph = crawler.CrawlParagraphs("https://thenextweb.com/apps/2013/03/21/swayy-discover-curate-content/");
+            Summarizer summarizer = new Summarizer();
+
+            foreach(var paragraph in _Paragraph._Paragraph.ToList())
+            {
+                summarizer.Run(paragraph);
+            }
+
+            foreach(var item in summarizer.SummarizedText.ToList())
+            {
+                root.AddWord(root,item);
+            }
+
+
+            Console.WriteLine();
+            Console.WriteLine("Origianl Length: " + _Paragraph.Counter);
+            Console.WriteLine("Summary Length: " + summarizer.Counter);
+            Console.WriteLine("Summary Ratio: " + Math.Round((Convert.ToDouble(_Paragraph.Counter) / Convert.ToDouble(summarizer.Counter)),2));
 
             //DFS(root);
             AutoComplete.Trie.Trie trie = new AutoComplete.Trie.Trie();
@@ -47,11 +67,16 @@ namespace AutoComplete
                 input = Console.ReadLine();
                 Console.WriteLine("Printing Suggestions");
                 trie.PrintAutoSuggestions(root, input);
+                options.AddAutoCompleteOptions(trie.suggestions);
+                new JsonObject(options.Values).Serialize();
             } while (input != "exit");
+
+            
+
 
         }
 
-        public static string FilterRegex(string filter)
+        public string FilterRegex(string filter)
         {
             var regex = @"[a-zA-Z]+";
             IEnumerable<string> words = Regex.Matches(filter, regex).Cast<Match>().Select(m => m.Value);
